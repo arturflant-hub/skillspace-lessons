@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21. Валидация данных — SkillSpace Frontend</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --accent: #17b198;
+            --accent-dark: #0d8a75;
+            --accent-glow: rgba(23,177,152,0.15);
+            --bg: #0d0f1a;
+            --bg-card: #131620;
+            --bg-card2: #1a1d2e;
+            --border: #23263a;
+            --text: #dde1f0;
+            --text-muted: #8b90aa;
+            --text-dim: #5a5f7a;
+            --code-bg: #0a0c16;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.75;
+            min-height: 100vh;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            background: linear-gradient(135deg, #0f2420 0%, #0d1a16 40%, #0a1219 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 56px 24px 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(23,177,152,0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(23,177,152,0.1);
+            border: 1px solid rgba(23,177,152,0.3);
+            color: var(--accent);
+            padding: 6px 18px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            font-size: clamp(26px, 5vw, 46px);
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 40px rgba(23,177,152,0.3);
+        }
+        .hero h1 span { color: var(--accent); }
+        .hero-sub {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .hero-tags {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .tag {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 5px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ── LAYOUT ── */
+        .page {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 32px;
+            align-items: start;
+        }
+        .main-col { min-width: 0; }
+
+        /* ── TOC SIDEBAR ── */
+        .toc {
+            position: sticky;
+            top: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+        .toc-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 2px; }
+        .toc-list a {
+            display: block;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.15s;
+            border-left: 2px solid transparent;
+        }
+        .toc-list a:hover {
+            color: var(--accent);
+            background: var(--accent-glow);
+            border-left-color: var(--accent);
+        }
+        .toc-num {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent);
+            min-width: 20px;
+            opacity: 0.7;
+        }
+
+        /* ── VIDEO ── */
+        .video-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(23,177,152,0.05);
+        }
+        .video-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .v-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+        .v-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        video {
+            width: 100%;
+            display: block;
+            background: #000;
+            max-height: 520px;
+        }
+        .video-footer {
+            padding: 14px 20px;
+            background: var(--code-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dl-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .dl-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .video-hint { font-size: 12px; color: var(--text-dim); }
+
+        /* ── CONTENT CARDS ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 30px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-title .emoji { font-size: 20px; }
+
+        h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 22px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h3::before { content: '▸'; opacity: 0.6; font-size: 12px; }
+
+        p { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; }
+
+        ul { list-style: none; margin: 8px 0 14px; }
+        ul li {
+            position: relative;
+            padding: 5px 0 5px 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        ul li::before {
+            content: '·';
+            position: absolute;
+            left: 4px;
+            color: var(--accent);
+            font-size: 20px;
+            line-height: 1;
+            top: 3px;
+        }
+        ul ul { margin-left: 12px; }
+        ul ul li { font-size: 13px; color: var(--text-dim); }
+        ul ul li::before { content: '–'; font-size: 13px; top: 6px; color: #3a8a79; }
+
+        code {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.84em;
+        }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 18px 20px;
+            overflow-x: auto;
+            font-size: 13px;
+            margin: 14px 0;
+        }
+        pre code { background: none; border: none; padding: 0; color: var(--text); }
+
+        b, strong { color: #e8ecf8; font-weight: 600; }
+
+        /* ── COMPARISON BOX ── */
+        .compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 14px 0;
+        }
+        .compare-box {
+            background: var(--bg-card2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .compare-box h4 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+        .compare-box ul li { font-size: 12px; }
+
+        /* ── HOMEWORK ── */
+        .hw-card {
+            background: linear-gradient(135deg, rgba(23,177,152,0.08), rgba(13,138,117,0.05));
+            border: 1px solid rgba(23,177,152,0.25);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .hw-card .card-title { border-bottom-color: rgba(23,177,152,0.2); }
+        .hw-step {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .hw-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #000;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .hw-text { font-size: 14px; color: var(--text-muted); }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center;
+            padding: 28px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 840px) {
+            .page { grid-template-columns: 1fr; }
+            .toc { position: static; }
+        }
+        @media (max-width: 560px) {
+            .card { padding: 20px 18px; }
+            .compare { grid-template-columns: 1fr; }
+            .hero { padding: 40px 16px 36px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+    <div class="hero-badge">🎓 c 0 до оффера · Frontend</div>
+    <h1>Урок <span>21.</span> Валидация данных</h1>
+    <div class="hero-sub">Курс: HTML, CSS, JS, REACT · SkillSpace</div>
+    <div class="hero-tags">
+        <span class="tag">🎬 Видеоурок</span>
+        <span class="tag">⚛️ React + TypeScript</span>
+        <span class="tag">📦 Zod · Yup</span>
+        <span class="tag">🪝 React Hook Form</span>
+        <span class="tag">🔐 Formik</span>
+    </div>
+</header>
+
+<!-- MAIN -->
+<div class="page">
+    <main class="main-col">
+
+        <!-- VIDEO -->
+        <div class="video-card">
+            <div class="video-card-header">
+                <div class="v-dot"></div>
+                <span class="v-label">Видеоурок: Валидация данных — Zod, Yup, React Hook Form, Formik</span>
+            </div>
+            <video controls preload="metadata">
+                <source src="https://a9255f1c-4000-4f5a-8eee-07c66a418106.selstorage.ru/schools/39695/lesson/2082823/video/688f3d77721146.5768269321-validacia-dannyh-formik.mp4" type="video/mp4">
+                Ваш браузер не поддерживает видео.
+            </video>
+            <div class="video-footer">
+                <a class="dl-btn" href="https://a9255f1c-4000-4f5a-8eee-07c66a418106.selstorage.ru/schools/39695/lesson/2082823/video/688f3d77721146.5768269321-validacia-dannyh-formik.mp4" download>⬇️ Скачать видео</a>
+                <span class="video-hint">MP4 · ~225 МБ</span>
+            </div>
+        </div>
+
+        <!-- 1. Введение -->
+        <div class="card" id="s1">
+            <div class="card-title"><span class="emoji">🚀</span> 1. Введение</div>
+            <p>Тема урока — <strong>валидация данных в формах React-приложения</strong>. Сравниваем два главных инструмента:</p>
+            <div class="compare">
+                <div class="compare-box">
+                    <h4>⚡ Zod</h4>
+                    <ul>
+                        <li><strong>20M</strong> скачиваний/нед</li>
+                        <li>TypeScript-first</li>
+                        <li>Популярен на бэке (Nest.js, tRPC)</li>
+                        <li>Мощная документация</li>
+                    </ul>
+                </div>
+                <div class="compare-box">
+                    <h4>🟡 Yup</h4>
+                    <ul>
+                        <li><strong>8M</strong> скачиваний/нед</li>
+                        <li>Проще синтаксис</li>
+                        <li>Исторически популярен</li>
+                        <li>Хорошая документация на сайте</li>
+                    </ul>
+                </div>
+            </div>
+            <p>Принцип работы одинаков: создаём схему → передаём данные → получаем успех или ошибки.</p>
+        </div>
+
+        <!-- 2. Подготовка -->
+        <div class="card" id="s2">
+            <div class="card-title"><span class="emoji">⚙️</span> 2. Подготовка окружения</div>
+            <ul>
+                <li>Убедиться: React, TypeScript, MUI, Redux Toolkit установлены</li>
+                <li>Установить <strong>Zod</strong>: <code>npm install zod</code></li>
+                <li>Установить <strong>Yup</strong>: <code>npm install yup</code></li>
+                <li>React Hook Form: <code>npm install react-hook-form</code></li>
+                <li>Resolver для Yup: <code>npm install @hookform/resolvers</code></li>
+            </ul>
+        </div>
+
+        <!-- 3. Ручная валидация -->
+        <div class="card" id="s3">
+            <div class="card-title"><span class="emoji">✋</span> 3. Ручная валидация</div>
+            <p>Пример в <code>Login.tsx</code> — проверяем email вручную:</p>
+            <ul>
+                <li>Ищем <code>@</code> и проверяем текст слева/справа</li>
+                <li>Показываем ошибку через <code>notistack</code></li>
+                <li>Подсвечиваем поле через <code>error</code> в MUI <code>TextField</code></li>
+            </ul>
+            <h3>Проблемы подхода</h3>
+            <ul>
+                <li>Код раздувается для сложных проверок (домен, длина, спецсимволы)</li>
+                <li>Нет типизации ошибок — легко ошибиться</li>
+                <li>Плохо масштабируется для форм с множеством полей</li>
+            </ul>
+        </div>
+
+        <!-- 4. Zod -->
+        <div class="card" id="s4">
+            <div class="card-title"><span class="emoji">⚡</span> 4. Валидация с Zod</div>
+            <h3>Основы</h3>
+            <ul>
+                <li>Создаём схему: <code>z.string().email()</code>, <code>z.string().min(8)</code></li>
+                <li><code>parse</code> — проверка данных, ошибки через <code>try/catch</code></li>
+                <li>Ошибки: <code>ZodError</code> с массивом объектов (код, сообщение, путь)</li>
+            </ul>
+            <h3>Пример схемы</h3>
+            <pre><code>import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email('Неверный формат email'),
+  password: z.string().min(8, 'Минимум 8 символов'),
+});
+
+type LoginForm = z.infer&lt;typeof loginSchema&gt;;
+</code></pre>
+            <h3>Преимущества</h3>
+            <ul>
+                <li>Строгая типизация с TypeScript</li>
+                <li>Сложные проверки: regex, кастомные сообщения</li>
+                <li>Популярен на бэкенде и фронтенде</li>
+            </ul>
+        </div>
+
+        <!-- 5. Yup -->
+        <div class="card" id="s5">
+            <div class="card-title"><span class="emoji">🟡</span> 5. Валидация с Yup</div>
+            <h3>Основы</h3>
+            <ul>
+                <li>Схема: <code>object({ email: string().email(), password: string().min(8) })</code></li>
+                <li><code>validate</code> / <code>validateSync</code> — проверка данных</li>
+                <li><code>abortEarly: false</code> — собрать все ошибки, а не только первую</li>
+            </ul>
+            <h3>Пример схемы</h3>
+            <pre><code>import * as yup from 'yup';
+
+const loginSchema = yup.object({
+  email: yup.string().email('Неверный формат').required(),
+  password: yup.string().min(8, 'Минимум 8 символов').required(),
+});
+</code></pre>
+            <h3>Преимущества и недостатки</h3>
+            <ul>
+                <li>✅ Проще синтаксис, меньше бойлерплейта</li>
+                <li>✅ Хорошая документация на сайте</li>
+                <li>❌ Меньше скачиваний (уступает Zod 2.5x)</li>
+                <li>❌ TypeScript-интеграция чуть слабее</li>
+            </ul>
+        </div>
+
+        <!-- 6. React Hook Form -->
+        <div class="card" id="s6">
+            <div class="card-title"><span class="emoji">🪝</span> 6. React Hook Form</div>
+            <h3>Почему React Hook Form?</h3>
+            <ul>
+                <li><strong>8M</strong> скачиваний — в 10x популярнее Formik</li>
+                <li>Нет лишних ре-рендеров, мемоизированные хуки</li>
+                <li>Меньше бойлерплейта</li>
+            </ul>
+            <h3>Интеграция с Zod</h3>
+            <pre><code>import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const { register, handleSubmit, formState: { errors } } = useForm({
+  resolver: zodResolver(loginSchema),
+});
+
+// В JSX:
+&lt;TextField
+  {...register('email')}
+  error={!!errors.email}
+  helperText={errors.email?.message}
+/&gt;
+</code></pre>
+            <h3>Режимы валидации</h3>
+            <ul>
+                <li><code>mode: 'onSubmit'</code> — по умолчанию</li>
+                <li><code>mode: 'onChange'</code> — мгновенная валидация при вводе</li>
+                <li><code>mode: 'onBlur'</code> — после потери фокуса</li>
+                <li><code>mode: 'onTouched'</code> — после первого касания</li>
+            </ul>
+        </div>
+
+        <!-- 7. Formik -->
+        <div class="card" id="s7">
+            <div class="card-title"><span class="emoji">📦</span> 7. Кратко о Formik</div>
+            <ul>
+                <li>Компонент <code>&lt;Formik&gt;</code> с <code>initialValues</code>, <code>validationSchema</code>, <code>onSubmit</code></li>
+                <li>Внутри используем <code>handleChange</code>, <code>handleBlur</code>, <code>handleSubmit</code></li>
+            </ul>
+            <h3>Почему не использовать</h3>
+            <ul>
+                <li>Больше бойлерплейта и вложенности</li>
+                <li>Лишние ре-рендеры, сложнее мемоизировать</li>
+                <li>TypeScript-интеграция хуже</li>
+                <li>800k скачиваний vs 8M у React Hook Form</li>
+            </ul>
+            <h3>Когда использовать</h3>
+            <ul>
+                <li>Если проект уже на Formik — переписывать нецелесообразно</li>
+                <li>Использовать <code>useFormik</code> (хуковый API) вместо <code>&lt;Formik&gt;</code></li>
+            </ul>
+        </div>
+
+        <!-- 8. Домашка -->
+        <div class="hw-card" id="s8">
+            <div class="card-title"><span class="emoji">📝</span> 8. Домашнее задание</div>
+            <div class="hw-step">
+                <div class="hw-num">1</div>
+                <div class="hw-text">Форма логина с <strong>Zod + React Hook Form</strong>: email обязательный, password мин. 8 символов + хотя бы 1 спецсимвол (regex)</div>
+            </div>
+            <div class="hw-step">
+                <div class="hw-num">2</div>
+                <div class="hw-text">Переписать ту же форму с <strong>Yup</strong> — сравнить синтаксис</div>
+            </div>
+            <div class="hw-step">
+                <div class="hw-num">3</div>
+                <div class="hw-text">Форма регистрации: проверка совпадения пароля и подтверждения (<code>.ref</code> в Yup или <code>.refine</code> в Zod)</div>
+            </div>
+            <div class="hw-step">
+                <div class="hw-num">★</div>
+                <div class="hw-text">Опционально: кастомные сообщения об ошибках, режим <code>onBlur</code>, исследовать <strong>Joy</strong> (11M скачиваний)</div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- TOC SIDEBAR -->
+    <aside>
+        <nav class="toc">
+            <div class="toc-title">📋 Содержание</div>
+            <ul class="toc-list">
+                <li><a href="#s1"><span class="toc-num">01</span> Введение</a></li>
+                <li><a href="#s2"><span class="toc-num">02</span> Подготовка</a></li>
+                <li><a href="#s3"><span class="toc-num">03</span> Ручная валидация</a></li>
+                <li><a href="#s4"><span class="toc-num">04</span> Zod</a></li>
+                <li><a href="#s5"><span class="toc-num">05</span> Yup</a></li>
+                <li><a href="#s6"><span class="toc-num">06</span> React Hook Form</a></li>
+                <li><a href="#s7"><span class="toc-num">07</span> Formik</a></li>
+                <li><a href="#s8"><span class="toc-num">08</span> Домашка</a></li>
+            </ul>
+        </nav>
+    </aside>
+</div>
+
+<footer>
+    Архив уроков <a href="https://fd74c5.skillspace.ru/">SkillSpace</a> · Frontend курс «c 0 до оффера» ·
+    Урок 21: Валидация данных ·
+    <a href="https://github.com/arturflant-hub/skillspace-lessons">GitHub</a>
+</footer>
+
+</body>
+</html>
