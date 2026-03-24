@@ -3,320 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>21. Валидация данных — SkillSpace Frontend</title>
+    <title>21. Валидация данных — SkillSpace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --accent: #17b198;
-            --accent-dark: #0d8a75;
-            --accent-glow: rgba(23,177,152,0.15);
-            --bg: #0d0f1a;
-            --bg-card: #131620;
-            --bg-card2: #1a1d2e;
-            --border: #23263a;
-            --text: #dde1f0;
-            --text-muted: #8b90aa;
-            --text-dim: #5a5f7a;
-            --code-bg: #0a0c16;
+            --accent: #2DBE8D;
+            --accent-dark: #23a87a;
+            --accent-light: rgba(45,190,141,0.12);
+            --bg: #FFFFFF;
+            --card: #F7F7F7;
+            --card2: #EFEFEF;
+            --border: #E8E8E8;
+            --text: #1A1A1A;
+            --text-muted: #555555;
+            --text-dim: #999999;
+            --nav-h: 60px;
         }
 
         html { scroll-behavior: smooth; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.75;
+            line-height: 1.7;
             min-height: 100vh;
+            padding-bottom: calc(var(--nav-h) + 16px);
         }
 
-        /* ── HERO ── */
-        .hero {
-            background: linear-gradient(135deg, #0f2420 0%, #0d1a16 40%, #0a1219 100%);
-            border-bottom: 1px solid var(--border);
-            padding: 56px 24px 48px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(23,177,152,0.18) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(23,177,152,0.1);
-            border: 1px solid rgba(23,177,152,0.3);
-            color: var(--accent);
-            padding: 6px 18px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            margin-bottom: 24px;
-        }
-        .hero h1 {
-            font-size: clamp(26px, 5vw, 46px);
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: -0.5px;
-            margin-bottom: 10px;
-            text-shadow: 0 0 40px rgba(23,177,152,0.3);
-        }
-        .hero h1 span { color: var(--accent); }
-        .hero-sub {
-            font-size: 15px;
-            color: var(--text-muted);
-            margin-bottom: 28px;
-        }
-        .hero-tags {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .tag {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 5px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* ── LAYOUT ── */
-        .page {
-            max-width: 1140px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            display: grid;
-            grid-template-columns: 1fr 260px;
-            gap: 32px;
-            align-items: start;
-        }
-        .main-col { min-width: 0; }
-
-        /* ── TOC SIDEBAR ── */
-        .toc {
+        /* ── TOP BAR ── */
+        .topbar {
             position: sticky;
-            top: 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 22px;
-        }
-        .toc-title {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            top: 0;
+            z-index: 100;
+            background: var(--bg);
             border-bottom: 1px solid var(--border);
-        }
-        .toc-list { list-style: none; }
-        .toc-list li { margin-bottom: 2px; }
-        .toc-list a {
-            display: block;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: all 0.15s;
-            border-left: 2px solid transparent;
-        }
-        .toc-list a:hover {
-            color: var(--accent);
-            background: var(--accent-glow);
-            border-left-color: var(--accent);
-        }
-        .toc-num {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--accent);
-            min-width: 20px;
-            opacity: 0.7;
-        }
-
-        /* ── VIDEO ── */
-        .video-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 28px;
-            box-shadow: 0 4px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(23,177,152,0.05);
-        }
-        .video-card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-        .v-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-        .v-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-        video {
-            width: 100%;
-            display: block;
-            background: #000;
-            max-height: 520px;
-        }
-        .video-footer {
-            padding: 14px 20px;
-            background: var(--code-bg);
-            border-top: 1px solid var(--border);
             display: flex;
             align-items: center;
             gap: 12px;
+            padding: 0 16px;
+            height: 52px;
         }
-        .dl-btn {
+        .back-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: #fff;
+            gap: 6px;
+            color: var(--text-muted);
             text-decoration: none;
-            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 10px;
             border-radius: 8px;
-            font-size: 13px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .back-btn:hover { background: var(--card); color: var(--text); }
+        .back-icon { font-size: 16px; line-height: 1; }
+        .topbar-title {
+            flex: 1;
+            font-size: 15px;
             font-weight: 600;
-            transition: opacity 0.2s, transform 0.15s;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .dl-btn:hover { opacity: 0.88; transform: translateY(-1px); }
-        .video-hint { font-size: 12px; color: var(--text-dim); }
-
-        /* ── CONTENT CARDS ── */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px 30px;
-            margin-bottom: 20px;
-        }
-        .card-title {
-            font-size: 19px;
+        .lesson-badge {
+            flex-shrink: 0;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 11px;
             font-weight: 700;
-            color: #fff;
+            padding: 3px 10px;
+            border-radius: 100px;
+        }
+
+        /* ── WRAPPER ── */
+        .wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px 12px 0;
+        }
+
+        /* ── CONTENT CARD ── */
+        .content-card {
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        /* ── VIDEO ── */
+        .video-wrap {
+            position: relative;
+            width: 100%;
+            background: #000;
+            aspect-ratio: 16/9;
+        }
+        .video-wrap video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* ── CARD BODY ── */
+        .card-body {
+            padding: 20px 16px 24px;
+        }
+        .lesson-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        .lesson-meta {
+            font-size: 13px;
+            color: var(--text-dim);
             margin-bottom: 20px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-dim); }
+
+        /* ── DL LINK ── */
+        .dl-row {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            background: var(--card2);
+            border-radius: 12px;
         }
-        .card-title .emoji { font-size: 20px; }
+        .dl-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+        .dl-link:hover { background: var(--accent-dark); }
+        .dl-hint { font-size: 12px; color: var(--text-dim); }
 
-        h3 {
-            font-size: 15px;
+        /* ── DIVIDER ── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 20px 0;
+        }
+
+        /* ── SECTION ── */
+        .section { margin-bottom: 24px; }
+        .section-title {
+            font-size: 16px;
             font-weight: 700;
-            color: var(--accent);
-            margin: 22px 0 10px;
+            color: var(--text);
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        h3::before { content: '▸'; opacity: 0.6; font-size: 12px; }
+        .section-num {
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
 
-        p { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; }
+        h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 16px 0 8px;
+        }
 
-        ul { list-style: none; margin: 8px 0 14px; }
-        ul li {
-            position: relative;
-            padding: 5px 0 5px 20px;
+        p {
             font-size: 14px;
             color: var(--text-muted);
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            margin: 0 0 12px;
+        }
+        ul li {
+            position: relative;
+            padding: 5px 0 5px 18px;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.55;
         }
         ul li::before {
-            content: '·';
+            content: '•';
             position: absolute;
             left: 4px;
             color: var(--accent);
-            font-size: 20px;
-            line-height: 1;
-            top: 3px;
+            font-size: 16px;
+            line-height: 1.2;
         }
-        ul ul { margin-left: 12px; }
+        ul ul { margin-left: 12px; margin-top: 4px; }
         ul ul li { font-size: 13px; color: var(--text-dim); }
-        ul ul li::before { content: '–'; font-size: 13px; top: 6px; color: #3a8a79; }
+        ul ul li::before { color: var(--text-dim); }
+
+        b, strong { color: var(--text); font-weight: 600; }
 
         code {
-            background: var(--code-bg);
+            background: var(--card2);
             border: 1px solid var(--border);
-            color: var(--accent);
-            padding: 2px 7px;
+            color: #0d7a5f;
+            padding: 1px 6px;
             border-radius: 5px;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            font-size: 0.84em;
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.82em;
         }
         pre {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--accent);
-            border-radius: 10px;
-            padding: 18px 20px;
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 16px 18px;
             overflow-x: auto;
-            font-size: 13px;
-            margin: 14px 0;
+            font-size: 12.5px;
+            margin: 12px 0;
         }
-        pre code { background: none; border: none; padding: 0; color: var(--text); }
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: #a8c5da;
+            font-size: inherit;
+        }
 
-        b, strong { color: #e8ecf8; font-weight: 600; }
-
-        /* ── COMPARISON BOX ── */
+        /* ── COMPARE GRID ── */
         .compare {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin: 14px 0;
+            gap: 10px;
+            margin: 12px 0;
         }
         .compare-box {
-            background: var(--bg-card2);
+            background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 14px;
         }
         .compare-box h4 {
             font-size: 13px;
             font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--accent);
+            margin-bottom: 8px;
+            color: var(--text);
         }
-        .compare-box ul li { font-size: 12px; }
+        .compare-box ul li { font-size: 12.5px; }
+
+        /* ── HIGHLIGHT BOX ── */
+        .highlight-box {
+            background: var(--accent-light);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 10px 10px 0;
+            padding: 12px 14px;
+            margin: 12px 0;
+        }
+        .highlight-box p { color: var(--text-muted); margin: 0; font-size: 13.5px; }
 
         /* ── HOMEWORK ── */
         .hw-card {
-            background: linear-gradient(135deg, rgba(23,177,152,0.08), rgba(13,138,117,0.05));
-            border: 1px solid rgba(23,177,152,0.25);
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
+            background: var(--bg);
+            border: 1.5px solid var(--accent);
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin-bottom: 8px;
         }
-        .hw-card .card-title { border-bottom-color: rgba(23,177,152,0.2); }
+        .hw-card .section-title { color: var(--text); }
         .hw-step {
             display: flex;
-            gap: 14px;
+            gap: 12px;
             align-items: flex-start;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .hw-num {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: var(--accent);
-            color: #000;
-            font-size: 13px;
+            color: #fff;
+            font-size: 12px;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -324,187 +314,274 @@
             flex-shrink: 0;
             margin-top: 1px;
         }
-        .hw-text { font-size: 14px; color: var(--text-muted); }
+        .hw-text { font-size: 13.5px; color: var(--text-muted); line-height: 1.55; }
 
-        /* ── FOOTER ── */
-        footer {
-            text-align: center;
-            padding: 28px 20px;
+        /* ── NAV BUTTONS ── */
+        .nav-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0 4px;
+        }
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            text-decoration: none;
+            transition: background 0.15s;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .nav-btn.prev {
+            background: var(--card2);
+            align-items: flex-start;
+        }
+        .nav-btn.prev:hover { background: #E0E0E0; }
+        .nav-btn.next {
+            background: var(--accent);
+            align-items: flex-end;
+        }
+        .nav-btn.next:hover { background: var(--accent-dark); }
+        .nav-direction {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .nav-btn.prev .nav-direction { color: var(--text-dim); }
+        .nav-btn.next .nav-direction { color: rgba(255,255,255,0.75); }
+        .nav-label {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+        .nav-btn.prev .nav-label { color: var(--text); }
+        .nav-btn.next .nav-label { color: #fff; text-align: right; }
+
+        /* ── BOTTOM TABS ── */
+        .bottom-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg);
             border-top: 1px solid var(--border);
-            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: var(--nav-h);
+            padding: 0 8px;
+            z-index: 100;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: background 0.15s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            flex: 1;
+        }
+        .tab-item:hover { background: var(--card); }
+        .tab-icon { font-size: 20px; line-height: 1; }
+        .tab-label {
+            font-size: 10.5px;
+            font-weight: 500;
             color: var(--text-dim);
         }
-        footer a { color: var(--accent); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
+        .tab-item.active .tab-label { color: var(--accent); }
+        .tab-item.active .tab-icon { filter: none; }
 
         /* ── RESPONSIVE ── */
-        @media (max-width: 840px) {
-            .page { grid-template-columns: 1fr; }
-            .toc { position: static; }
-        }
-        @media (max-width: 560px) {
-            .card { padding: 20px 18px; }
+        @media (max-width: 420px) {
             .compare { grid-template-columns: 1fr; }
-            .hero { padding: 40px 16px 36px; }
+            .lesson-title { font-size: 18px; }
         }
     </style>
 </head>
 <body>
 
-<!-- HERO -->
-<header class="hero">
-    <div class="hero-badge">🎓 c 0 до оффера · Frontend</div>
-    <h1>Урок <span>21.</span> Валидация данных</h1>
-    <div class="hero-sub">Курс: HTML, CSS, JS, REACT · SkillSpace</div>
-    <div class="hero-tags">
-        <span class="tag">🎬 Видеоурок</span>
-        <span class="tag">⚛️ React + TypeScript</span>
-        <span class="tag">📦 Zod · Yup</span>
-        <span class="tag">🪝 React Hook Form</span>
-        <span class="tag">🔐 Formik</span>
-    </div>
+<!-- TOP BAR -->
+<header class="topbar">
+    <a href="../../index.html" class="back-btn">
+        <span class="back-icon">←</span>
+        <span>Назад</span>
+    </a>
+    <span class="topbar-title">Урок 21. Валидация данных</span>
+    <span class="lesson-badge">21 / 40</span>
 </header>
 
-<!-- MAIN -->
-<div class="page">
-    <main class="main-col">
+<!-- MAIN CONTENT -->
+<div class="wrapper">
+    <div class="content-card">
 
         <!-- VIDEO -->
-        <div class="video-card">
-            <div class="video-card-header">
-                <div class="v-dot"></div>
-                <span class="v-label">Видеоурок: Валидация данных — Zod, Yup, React Hook Form, Formik</span>
-            </div>
-            <video controls preload="metadata">
+        <div class="video-wrap">
+            <video controls preload="metadata" poster="">
                 <source src="https://a9255f1c-4000-4f5a-8eee-07c66a418106.selstorage.ru/schools/39695/lesson/2082823/video/688f3d77721146.5768269321-validacia-dannyh-formik.mp4" type="video/mp4">
                 Ваш браузер не поддерживает видео.
             </video>
-            <div class="video-footer">
-                <a class="dl-btn" href="https://a9255f1c-4000-4f5a-8eee-07c66a418106.selstorage.ru/schools/39695/lesson/2082823/video/688f3d77721146.5768269321-validacia-dannyh-formik.mp4" download>⬇️ Скачать видео</a>
-                <span class="video-hint">MP4 · ~225 МБ</span>
+        </div>
+
+        <!-- CARD BODY -->
+        <div class="card-body">
+
+            <div class="lesson-title">Валидация данных</div>
+            <div class="lesson-meta">
+                <span>🎓 Frontend с 0 до оффера</span>
+                <span class="meta-dot"></span>
+                <span>⚛️ React + TypeScript</span>
+                <span class="meta-dot"></span>
+                <span>🪝 React Hook Form</span>
             </div>
-        </div>
 
-        <!-- 1. Введение -->
-        <div class="card" id="s1">
-            <div class="card-title"><span class="emoji">🚀</span> 1. Введение</div>
-            <p>Тема урока — <strong>валидация данных в формах React-приложения</strong>. Сравниваем два главных инструмента:</p>
-            <div class="compare">
-                <div class="compare-box">
-                    <h4>⚡ Zod</h4>
-                    <ul>
-                        <li><strong>20M</strong> скачиваний/нед</li>
-                        <li>TypeScript-first</li>
-                        <li>Популярен на бэке (Nest.js, tRPC)</li>
-                        <li>Мощная документация</li>
-                    </ul>
+            <!-- Download -->
+            <div class="dl-row">
+                <a class="dl-link" href="https://a9255f1c-4000-4f5a-8eee-07c66a418106.selstorage.ru/schools/39695/lesson/2082823/video/688f3d77721146.5768269321-validacia-dannyh-formik.mp4" download>
+                    ⬇️ Скачать видео
+                </a>
+                <span class="dl-hint">MP4 · ~225 МБ</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 1. Введение -->
+            <div class="section" id="s1">
+                <div class="section-title">
+                    <span class="section-num">1</span>
+                    Введение
                 </div>
-                <div class="compare-box">
-                    <h4>🟡 Yup</h4>
-                    <ul>
-                        <li><strong>8M</strong> скачиваний/нед</li>
-                        <li>Проще синтаксис</li>
-                        <li>Исторически популярен</li>
-                        <li>Хорошая документация на сайте</li>
-                    </ul>
+                <p>Тема урока — <strong>валидация данных в формах React-приложения</strong>. Сравниваем два главных инструмента:</p>
+                <div class="compare">
+                    <div class="compare-box">
+                        <h4>⚡ Zod</h4>
+                        <ul>
+                            <li><strong>20M</strong> скачиваний/нед</li>
+                            <li>TypeScript-first</li>
+                            <li>Популярен на бэке (Nest.js, tRPC)</li>
+                        </ul>
+                    </div>
+                    <div class="compare-box">
+                        <h4>🟡 Yup</h4>
+                        <ul>
+                            <li><strong>8M</strong> скачиваний/нед</li>
+                            <li>Проще синтаксис</li>
+                            <li>Исторически популярен</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <p>Принцип работы одинаков: создаём схему → передаём данные → получаем успех или ошибки.</p>
                 </div>
             </div>
-            <p>Принцип работы одинаков: создаём схему → передаём данные → получаем успех или ошибки.</p>
-        </div>
 
-        <!-- 2. Подготовка -->
-        <div class="card" id="s2">
-            <div class="card-title"><span class="emoji">⚙️</span> 2. Подготовка окружения</div>
-            <ul>
-                <li>Убедиться: React, TypeScript, MUI, Redux Toolkit установлены</li>
-                <li>Установить <strong>Zod</strong>: <code>npm install zod</code></li>
-                <li>Установить <strong>Yup</strong>: <code>npm install yup</code></li>
-                <li>React Hook Form: <code>npm install react-hook-form</code></li>
-                <li>Resolver для Yup: <code>npm install @hookform/resolvers</code></li>
-            </ul>
-        </div>
+            <div class="divider"></div>
 
-        <!-- 3. Ручная валидация -->
-        <div class="card" id="s3">
-            <div class="card-title"><span class="emoji">✋</span> 3. Ручная валидация</div>
-            <p>Пример в <code>Login.tsx</code> — проверяем email вручную:</p>
-            <ul>
-                <li>Ищем <code>@</code> и проверяем текст слева/справа</li>
-                <li>Показываем ошибку через <code>notistack</code></li>
-                <li>Подсвечиваем поле через <code>error</code> в MUI <code>TextField</code></li>
-            </ul>
-            <h3>Проблемы подхода</h3>
-            <ul>
-                <li>Код раздувается для сложных проверок (домен, длина, спецсимволы)</li>
-                <li>Нет типизации ошибок — легко ошибиться</li>
-                <li>Плохо масштабируется для форм с множеством полей</li>
-            </ul>
-        </div>
+            <!-- 2. Подготовка -->
+            <div class="section" id="s2">
+                <div class="section-title">
+                    <span class="section-num">2</span>
+                    Подготовка окружения
+                </div>
+                <ul>
+                    <li>React, TypeScript, MUI, Redux Toolkit — уже установлены</li>
+                    <li>Установить <strong>Zod</strong>: <code>npm install zod</code></li>
+                    <li>Установить <strong>Yup</strong>: <code>npm install yup</code></li>
+                    <li>React Hook Form: <code>npm install react-hook-form</code></li>
+                    <li>Resolver для Yup: <code>npm install @hookform/resolvers</code></li>
+                </ul>
+            </div>
 
-        <!-- 4. Zod -->
-        <div class="card" id="s4">
-            <div class="card-title"><span class="emoji">⚡</span> 4. Валидация с Zod</div>
-            <h3>Основы</h3>
-            <ul>
-                <li>Создаём схему: <code>z.string().email()</code>, <code>z.string().min(8)</code></li>
-                <li><code>parse</code> — проверка данных, ошибки через <code>try/catch</code></li>
-                <li>Ошибки: <code>ZodError</code> с массивом объектов (код, сообщение, путь)</li>
-            </ul>
-            <h3>Пример схемы</h3>
-            <pre><code>import { z } from 'zod';
+            <div class="divider"></div>
+
+            <!-- 3. Ручная валидация -->
+            <div class="section" id="s3">
+                <div class="section-title">
+                    <span class="section-num">3</span>
+                    Ручная валидация
+                </div>
+                <p>Пример в <code>Login.tsx</code> — проверяем email вручную: ищем <code>@</code>, проверяем текст слева/справа, показываем ошибку через <code>notistack</code>.</p>
+                <h3>Проблемы подхода</h3>
+                <ul>
+                    <li>Код раздувается для сложных проверок</li>
+                    <li>Нет типизации ошибок — легко ошибиться</li>
+                    <li>Плохо масштабируется для форм с множеством полей</li>
+                </ul>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 4. Zod -->
+            <div class="section" id="s4">
+                <div class="section-title">
+                    <span class="section-num">4</span>
+                    Валидация с Zod
+                </div>
+                <ul>
+                    <li>Схема: <code>z.string().email()</code>, <code>z.string().min(8)</code></li>
+                    <li><code>parse</code> — проверка данных, ошибки через <code>try/catch</code></li>
+                    <li>Ошибки: <code>ZodError</code> с массивом объектов (код, сообщение, путь)</li>
+                </ul>
+                <pre><code>import { z } from 'zod';
 
 const loginSchema = z.object({
   email: z.string().email('Неверный формат email'),
   password: z.string().min(8, 'Минимум 8 символов'),
 });
 
-type LoginForm = z.infer&lt;typeof loginSchema&gt;;
-</code></pre>
-            <h3>Преимущества</h3>
-            <ul>
-                <li>Строгая типизация с TypeScript</li>
-                <li>Сложные проверки: regex, кастомные сообщения</li>
-                <li>Популярен на бэкенде и фронтенде</li>
-            </ul>
-        </div>
+type LoginForm = z.infer&lt;typeof loginSchema&gt;;</code></pre>
+                <h3>Преимущества</h3>
+                <ul>
+                    <li><strong>Строгая типизация</strong> с TypeScript из коробки</li>
+                    <li>Сложные проверки: regex, кастомные сообщения</li>
+                    <li>Работает и на бэкенде (Nest.js, tRPC)</li>
+                </ul>
+            </div>
 
-        <!-- 5. Yup -->
-        <div class="card" id="s5">
-            <div class="card-title"><span class="emoji">🟡</span> 5. Валидация с Yup</div>
-            <h3>Основы</h3>
-            <ul>
-                <li>Схема: <code>object({ email: string().email(), password: string().min(8) })</code></li>
-                <li><code>validate</code> / <code>validateSync</code> — проверка данных</li>
-                <li><code>abortEarly: false</code> — собрать все ошибки, а не только первую</li>
-            </ul>
-            <h3>Пример схемы</h3>
-            <pre><code>import * as yup from 'yup';
+            <div class="divider"></div>
+
+            <!-- 5. Yup -->
+            <div class="section" id="s5">
+                <div class="section-title">
+                    <span class="section-num">5</span>
+                    Валидация с Yup
+                </div>
+                <pre><code>import * as yup from 'yup';
 
 const loginSchema = yup.object({
   email: yup.string().email('Неверный формат').required(),
   password: yup.string().min(8, 'Минимум 8 символов').required(),
-});
-</code></pre>
-            <h3>Преимущества и недостатки</h3>
-            <ul>
-                <li>✅ Проще синтаксис, меньше бойлерплейта</li>
-                <li>✅ Хорошая документация на сайте</li>
-                <li>❌ Меньше скачиваний (уступает Zod 2.5x)</li>
-                <li>❌ TypeScript-интеграция чуть слабее</li>
-            </ul>
-        </div>
+});</code></pre>
+                <ul>
+                    <li>✅ <strong>Проще синтаксис</strong>, меньше бойлерплейта</li>
+                    <li>✅ Хорошая документация на сайте</li>
+                    <li>❌ Меньше скачиваний (уступает Zod в 2.5x)</li>
+                    <li>❌ TypeScript-интеграция чуть слабее</li>
+                </ul>
+            </div>
 
-        <!-- 6. React Hook Form -->
-        <div class="card" id="s6">
-            <div class="card-title"><span class="emoji">🪝</span> 6. React Hook Form</div>
-            <h3>Почему React Hook Form?</h3>
-            <ul>
-                <li><strong>8M</strong> скачиваний — в 10x популярнее Formik</li>
-                <li>Нет лишних ре-рендеров, мемоизированные хуки</li>
-                <li>Меньше бойлерплейта</li>
-            </ul>
-            <h3>Интеграция с Zod</h3>
-            <pre><code>import { useForm } from 'react-hook-form';
+            <div class="divider"></div>
+
+            <!-- 6. React Hook Form -->
+            <div class="section" id="s6">
+                <div class="section-title">
+                    <span class="section-num">6</span>
+                    React Hook Form
+                </div>
+                <ul>
+                    <li><strong>8M</strong> скачиваний — в 10x популярнее Formik</li>
+                    <li>Нет лишних ре-рендеров, мемоизированные хуки</li>
+                </ul>
+                <pre><code>import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const { register, handleSubmit, formState: { errors } } = useForm({
@@ -516,84 +593,91 @@ const { register, handleSubmit, formState: { errors } } = useForm({
   {...register('email')}
   error={!!errors.email}
   helperText={errors.email?.message}
-/&gt;
-</code></pre>
-            <h3>Режимы валидации</h3>
-            <ul>
-                <li><code>mode: 'onSubmit'</code> — по умолчанию</li>
-                <li><code>mode: 'onChange'</code> — мгновенная валидация при вводе</li>
-                <li><code>mode: 'onBlur'</code> — после потери фокуса</li>
-                <li><code>mode: 'onTouched'</code> — после первого касания</li>
-            </ul>
+/&gt;</code></pre>
+                <h3>Режимы валидации</h3>
+                <ul>
+                    <li><code>onSubmit</code> — по умолчанию</li>
+                    <li><code>onChange</code> — мгновенная при вводе</li>
+                    <li><code>onBlur</code> — после потери фокуса</li>
+                    <li><code>onTouched</code> — после первого касания</li>
+                </ul>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 7. Formik -->
+            <div class="section" id="s7">
+                <div class="section-title">
+                    <span class="section-num">7</span>
+                    Кратко о Formik
+                </div>
+                <ul>
+                    <li>Больше бойлерплейта и вложенности</li>
+                    <li>Лишние ре-рендеры, сложнее мемоизировать</li>
+                    <li><strong>800k</strong> скачиваний vs <strong>8M</strong> у React Hook Form</li>
+                </ul>
+                <div class="highlight-box">
+                    <p>Если проект уже на Formik — не переписывай. Используй <code>useFormik</code> (хуковый API) вместо компонента <code>&lt;Formik&gt;</code>.</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 8. Домашка -->
+            <div class="hw-card" id="s8">
+                <div class="section-title">
+                    <span class="section-num">📝</span>
+                    Домашнее задание
+                </div>
+                <div class="hw-step">
+                    <div class="hw-num">1</div>
+                    <div class="hw-text">Форма логина с <strong>Zod + React Hook Form</strong>: email обязательный, password мин. 8 символов + хотя бы 1 спецсимвол (regex)</div>
+                </div>
+                <div class="hw-step">
+                    <div class="hw-num">2</div>
+                    <div class="hw-text">Переписать ту же форму с <strong>Yup</strong> — сравнить синтаксис</div>
+                </div>
+                <div class="hw-step">
+                    <div class="hw-num">3</div>
+                    <div class="hw-text">Форма регистрации: проверка совпадения пароля и подтверждения (<code>.ref</code> в Yup или <code>.refine</code> в Zod)</div>
+                </div>
+                <div class="hw-step">
+                    <div class="hw-num">★</div>
+                    <div class="hw-text">Опционально: кастомные сообщения, режим <code>onBlur</code>, исследовать <strong>Joy</strong> (11M скачиваний)</div>
+                </div>
+            </div>
+
+            <!-- NAV BUTTONS -->
+            <div class="nav-row">
+                <a href="../../index.html" class="nav-btn prev">
+                    <span class="nav-direction">← Назад</span>
+                    <span class="nav-label">Все уроки</span>
+                </a>
+                <a href="../../index.html" class="nav-btn next">
+                    <span class="nav-direction">Следующее →</span>
+                    <span class="nav-label">Следующее занятие</span>
+                </a>
+            </div>
+
         </div>
-
-        <!-- 7. Formik -->
-        <div class="card" id="s7">
-            <div class="card-title"><span class="emoji">📦</span> 7. Кратко о Formik</div>
-            <ul>
-                <li>Компонент <code>&lt;Formik&gt;</code> с <code>initialValues</code>, <code>validationSchema</code>, <code>onSubmit</code></li>
-                <li>Внутри используем <code>handleChange</code>, <code>handleBlur</code>, <code>handleSubmit</code></li>
-            </ul>
-            <h3>Почему не использовать</h3>
-            <ul>
-                <li>Больше бойлерплейта и вложенности</li>
-                <li>Лишние ре-рендеры, сложнее мемоизировать</li>
-                <li>TypeScript-интеграция хуже</li>
-                <li>800k скачиваний vs 8M у React Hook Form</li>
-            </ul>
-            <h3>Когда использовать</h3>
-            <ul>
-                <li>Если проект уже на Formik — переписывать нецелесообразно</li>
-                <li>Использовать <code>useFormik</code> (хуковый API) вместо <code>&lt;Formik&gt;</code></li>
-            </ul>
-        </div>
-
-        <!-- 8. Домашка -->
-        <div class="hw-card" id="s8">
-            <div class="card-title"><span class="emoji">📝</span> 8. Домашнее задание</div>
-            <div class="hw-step">
-                <div class="hw-num">1</div>
-                <div class="hw-text">Форма логина с <strong>Zod + React Hook Form</strong>: email обязательный, password мин. 8 символов + хотя бы 1 спецсимвол (regex)</div>
-            </div>
-            <div class="hw-step">
-                <div class="hw-num">2</div>
-                <div class="hw-text">Переписать ту же форму с <strong>Yup</strong> — сравнить синтаксис</div>
-            </div>
-            <div class="hw-step">
-                <div class="hw-num">3</div>
-                <div class="hw-text">Форма регистрации: проверка совпадения пароля и подтверждения (<code>.ref</code> в Yup или <code>.refine</code> в Zod)</div>
-            </div>
-            <div class="hw-step">
-                <div class="hw-num">★</div>
-                <div class="hw-text">Опционально: кастомные сообщения об ошибках, режим <code>onBlur</code>, исследовать <strong>Joy</strong> (11M скачиваний)</div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- TOC SIDEBAR -->
-    <aside>
-        <nav class="toc">
-            <div class="toc-title">📋 Содержание</div>
-            <ul class="toc-list">
-                <li><a href="#s1"><span class="toc-num">01</span> Введение</a></li>
-                <li><a href="#s2"><span class="toc-num">02</span> Подготовка</a></li>
-                <li><a href="#s3"><span class="toc-num">03</span> Ручная валидация</a></li>
-                <li><a href="#s4"><span class="toc-num">04</span> Zod</a></li>
-                <li><a href="#s5"><span class="toc-num">05</span> Yup</a></li>
-                <li><a href="#s6"><span class="toc-num">06</span> React Hook Form</a></li>
-                <li><a href="#s7"><span class="toc-num">07</span> Formik</a></li>
-                <li><a href="#s8"><span class="toc-num">08</span> Домашка</a></li>
-            </ul>
-        </nav>
-    </aside>
+    </div>
 </div>
 
-<footer>
-    Архив уроков <a href="https://fd74c5.skillspace.ru/">SkillSpace</a> · Frontend курс «c 0 до оффера» ·
-    Урок 21: Валидация данных ·
-    <a href="https://github.com/arturflant-hub/skillspace-lessons">GitHub</a>
-</footer>
+<!-- BOTTOM TABS -->
+<nav class="bottom-tabs">
+    <a href="../../index.html" class="tab-item active">
+        <span class="tab-icon">📚</span>
+        <span class="tab-label">Каталог</span>
+    </a>
+    <a href="../../index.html" class="tab-item">
+        <span class="tab-icon">🏛️</span>
+        <span class="tab-label">Библиотека</span>
+    </a>
+    <a href="../../index.html" class="tab-item">
+        <span class="tab-icon">👤</span>
+        <span class="tab-label">Профиль</span>
+    </a>
+</nav>
 
 </body>
 </html>
